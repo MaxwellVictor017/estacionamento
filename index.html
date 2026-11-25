@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Controle de Estacionamento</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div
+    id="toast-container"
+    class="toast-container"
+    aria-live="polite"
+    aria-atomic="true"
+    role="region"
+    aria-label="Notificações do sistema"
+  ></div>
+
+  <header class="topo-pagina">
+    <div class="topo-conteudo">
+      <div class="identidade">
+        <span class="icone-marca" aria-hidden="true">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2" />
+            <circle cx="7" cy="17" r="2" />
+            <path d="M9 17h6" />
+            <circle cx="17" cy="17" r="2" />
+          </svg>
+        </span>
+        <div class="identidade-texto">
+          <h1>Controle de Estacionamento</h1>
+          <span class="identidade-subtitulo">Gestão de Pátio</span>
+        </div>
+      </div>
+
+      <div class="status-sistema" aria-label="Sistema ativo">
+        <span class="ponto-ativo" aria-hidden="true"></span>
+        <time id="relogio" class="relogio-digital" aria-label="Horário atual">00:00:00</time>
+      </div>
+    </div>
+  </header>
+
+  <main class="layout-principal">
+    <!-- Coluna Esquerda -->
+    <div class="coluna-esquerda">
+      <section class="card card-ocupacao" aria-labelledby="titulo-ocupacao">
+        <div class="card-cabecalho">
+          <h2 id="titulo-ocupacao">Ocupação do pátio</h2>
+        </div>
+
+        <div class="ocupacao-metricas">
+          <div class="metrica-item">
+            <span class="metrica-rotulo">Vagas livres</span>
+            <p id="vagas" class="metrica-valor destaque-vagas" aria-live="polite">50 / 50</p>
+          </div>
+          <div class="metrica-divisor" aria-hidden="true"></div>
+          <div class="metrica-item">
+            <span class="metrica-rotulo">Ocupadas</span>
+            <p id="total-ocupadas" class="metrica-valor" aria-live="polite">0</p>
+          </div>
+        </div>
+
+        <div class="progresso-container">
+          <div
+            id="barra-ocupacao"
+            class="barra-ocupacao"
+            role="progressbar"
+            aria-label="Taxa de ocupação do estacionamento"
+            aria-valuemin="0"
+            aria-valuemax="50"
+            aria-valuenow="0"
+          >
+            <div id="barra-preenchimento" class="barra-preenchimento nivel-normal"></div>
+          </div>
+          <span id="percentual-ocupacao" class="progresso-percentual" aria-live="polite">0%</span>
+        </div>
+      </section>
+
+      <section class="card card-entrada" aria-labelledby="titulo-entrada">
+        <div class="card-cabecalho">
+          <h2 id="titulo-entrada">Registrar entrada</h2>
+        </div>
+
+        <form id="form-entrada" class="formulario-entrada" novalidate>
+          <label for="placa" class="campo-label">Placa do veículo</label>
+          <input
+            id="placa"
+            name="placa"
+            type="text"
+            placeholder="Ex.: ABC-1234 ou ABC1D23"
+            maxlength="8"
+            autocomplete="off"
+            spellcheck="false"
+            aria-describedby="dica-placa mensagem"
+            aria-invalid="false"
+            required
+          >
+          <p id="dica-placa" class="campo-dica">Formatos aceitos: ABC-1234 ou ABC1D23</p>
+
+          <button id="entrar" type="button" class="btn-primario">Registrar entrada</button>
+        </form>
+
+        <p id="mensagem" class="mensagem" role="status" aria-live="polite"></p>
+      </section>
+    </div>
+
+    <!-- Coluna Direita -->
+    <section class="card card-ativos" aria-labelledby="titulo-lista">
+      <div class="ativos-topo">
+        <div class="ativos-titulo-grupo">
+          <h2 id="titulo-lista">Veículos ativos</h2>
+          <span id="contador-lista" class="contador-discreto" aria-live="polite">0 de 50</span>
+        </div>
+
+        <div class="ativos-controles">
+          <label for="busca" class="sr-only">Filtrar veículos ativos por placa</label>
+          <input
+            id="busca"
+            type="search"
+            class="input-busca"
+            placeholder="Filtrar placa..."
+            maxlength="8"
+            autocomplete="off"
+            spellcheck="false"
+            aria-label="Filtrar veículos ativos por placa"
+          >
+          <button
+            id="limpar-patio"
+            type="button"
+            class="btn-limpar"
+            aria-label="Limpar todos os veículos do pátio"
+            disabled
+          >
+            Limpar pátio
+          </button>
+        </div>
+      </div>
+
+      <div class="tabela-cabecalho" aria-hidden="true">
+        <span>Placa</span>
+        <span>Entrada</span>
+        <span>Permanência</span>
+        <span class="col-acao">Ação</span>
+      </div>
+
+      <ul id="lista" class="lista-veiculos" aria-live="polite" aria-label="Lista de veículos estacionados"></ul>
+    </section>
+  </main>
+
+  <dialog id="modal-confirmacao" class="modal-confirmacao" aria-labelledby="modal-titulo" aria-describedby="modal-descricao">
+    <div class="modal-conteudo">
+      <h3 id="modal-titulo">Limpar todos os veículos?</h3>
+      <p id="modal-descricao">
+        Todos os veículos ativos serão removidos e as 50 vagas serão liberadas imediatamente.
+      </p>
+      <div class="modal-acoes">
+        <button id="cancelar-limpeza" type="button" class="btn-neutro">Cancelar</button>
+        <button id="confirmar-limpeza" type="button" class="btn-perigo">Limpar pátio</button>
+      </div>
+    </div>
+  </dialog>
+
+  <script src="script.js"></script>
+</body>
+</html>
